@@ -1,0 +1,589 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5B1091A41831469100CF2A98 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1091A31831469100CF2A98 /* Foundation.framework */; };
+		5B1091A91831469100CF2A98 /* DCAPID.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5B1091A81831469100CF2A98 /* DCAPID.h */; };
+		5B1091AB1831469100CF2A98 /* DCAPID.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B1091AA1831469100CF2A98 /* DCAPID.m */; };
+		5B1091B21831469100CF2A98 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1091B11831469100CF2A98 /* XCTest.framework */; };
+		5B1091B31831469100CF2A98 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1091A31831469100CF2A98 /* Foundation.framework */; };
+		5B1091B51831469100CF2A98 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1091B41831469100CF2A98 /* UIKit.framework */; };
+		5B1091B81831469100CF2A98 /* libDCAPID.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1091A01831469100CF2A98 /* libDCAPID.a */; };
+		5B1091BE1831469100CF2A98 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5B1091BC1831469100CF2A98 /* InfoPlist.strings */; };
+		5B1091C01831469100CF2A98 /* DCAPIDTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B1091BF1831469100CF2A98 /* DCAPIDTests.m */; };
+		5B1091D9183146C700CF2A98 /* AuthResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B1091CA183146C700CF2A98 /* AuthResponse.m */; };
+		5B1091DA183146C700CF2A98 /* CardInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B1091CC183146C700CF2A98 /* CardInfo.m */; };
+		5B1091DB183146C700CF2A98 /* DCAPIException.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B1091CE183146C700CF2A98 /* DCAPIException.m */; };
+		5B1091DC183146C700CF2A98 /* Notification.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B1091D0183146C700CF2A98 /* Notification.m */; };
+		5B1091DD183146C700CF2A98 /* ProtocolKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B1091D2183146C700CF2A98 /* ProtocolKeys.m */; };
+		5B1091DE183146C700CF2A98 /* QRCodeResp.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B1091D4183146C700CF2A98 /* QRCodeResp.m */; };
+		5B1091DF183146C700CF2A98 /* TokenResp.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B1091D6183146C700CF2A98 /* TokenResp.m */; };
+		5B1091E0183146C700CF2A98 /* Transaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B1091D8183146C700CF2A98 /* Transaction.m */; };
+		5B50F5B81856159000D10FB4 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B50F5B71856159000D10FB4 /* Reachability.m */; };
+		5B7CA2591835D212009BA4F7 /* HOTPGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B7CA2541835D212009BA4F7 /* HOTPGenerator.m */; };
+		5B7CA25A1835D212009BA4F7 /* OTPGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B7CA2561835D212009BA4F7 /* OTPGenerator.m */; };
+		5B7CA25B1835D212009BA4F7 /* TOTPGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B7CA2581835D212009BA4F7 /* TOTPGenerator.m */; };
+		5B7CA25F1835DFE7009BA4F7 /* AuthResponse.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5B1091C9183146C700CF2A98 /* AuthResponse.h */; };
+		5B7CA2601835DFE7009BA4F7 /* CardInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5B1091CB183146C700CF2A98 /* CardInfo.h */; };
+		5B7CA2611835DFE7009BA4F7 /* DCAPIException.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5B1091CD183146C700CF2A98 /* DCAPIException.h */; };
+		5B7CA2621835DFE7009BA4F7 /* Notification.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5B1091CF183146C700CF2A98 /* Notification.h */; };
+		5B7CA2631835DFE7009BA4F7 /* QRCodeResp.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5B1091D3183146C700CF2A98 /* QRCodeResp.h */; };
+		5B7CA2641835DFE7009BA4F7 /* TokenResp.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5B1091D5183146C700CF2A98 /* TokenResp.h */; };
+		5B7CA2651835DFE7009BA4F7 /* Transaction.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5B1091D7183146C700CF2A98 /* Transaction.h */; };
+		5BC236F7183CC61A00787ACE /* MF_Base32Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BC236F6183CC61A00787ACE /* MF_Base32Additions.m */; };
+		5BC9F304183942680093DB26 /* libqrencode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC9F303183942680093DB26 /* libqrencode.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5B1091B61831469100CF2A98 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5B1091981831469100CF2A98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5B10919F1831469100CF2A98;
+			remoteInfo = DCAPID;
+		};
+		5BCD58E718421F0B00FE815D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5B1092221831480400CF2A98 /* TestAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5B1091EA1831480400CF2A98;
+			remoteInfo = TestAPI;
+		};
+		5BCD58E918421F0B00FE815D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5B1092221831480400CF2A98 /* TestAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5B10920B1831480400CF2A98;
+			remoteInfo = TestAPITests;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5B10919E1831469100CF2A98 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				5B7CA25F1835DFE7009BA4F7 /* AuthResponse.h in CopyFiles */,
+				5B7CA2601835DFE7009BA4F7 /* CardInfo.h in CopyFiles */,
+				5B7CA2611835DFE7009BA4F7 /* DCAPIException.h in CopyFiles */,
+				5B7CA2621835DFE7009BA4F7 /* Notification.h in CopyFiles */,
+				5B7CA2631835DFE7009BA4F7 /* QRCodeResp.h in CopyFiles */,
+				5B7CA2641835DFE7009BA4F7 /* TokenResp.h in CopyFiles */,
+				5B7CA2651835DFE7009BA4F7 /* Transaction.h in CopyFiles */,
+				5B1091A91831469100CF2A98 /* DCAPID.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		5B1091A01831469100CF2A98 /* libDCAPID.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDCAPID.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B1091A31831469100CF2A98 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		5B1091A71831469100CF2A98 /* DCAPID-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DCAPID-Prefix.pch"; sourceTree = "<group>"; };
+		5B1091A81831469100CF2A98 /* DCAPID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DCAPID.h; sourceTree = "<group>"; };
+		5B1091AA1831469100CF2A98 /* DCAPID.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DCAPID.m; sourceTree = "<group>"; };
+		5B1091B01831469100CF2A98 /* DCAPIDTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DCAPIDTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B1091B11831469100CF2A98 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		5B1091B41831469100CF2A98 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		5B1091BB1831469100CF2A98 /* DCAPIDTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DCAPIDTests-Info.plist"; sourceTree = "<group>"; };
+		5B1091BD1831469100CF2A98 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		5B1091BF1831469100CF2A98 /* DCAPIDTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DCAPIDTests.m; sourceTree = "<group>"; };
+		5B1091C9183146C700CF2A98 /* AuthResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthResponse.h; sourceTree = "<group>"; };
+		5B1091CA183146C700CF2A98 /* AuthResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthResponse.m; sourceTree = "<group>"; };
+		5B1091CB183146C700CF2A98 /* CardInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CardInfo.h; sourceTree = "<group>"; };
+		5B1091CC183146C700CF2A98 /* CardInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CardInfo.m; sourceTree = "<group>"; };
+		5B1091CD183146C700CF2A98 /* DCAPIException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCAPIException.h; sourceTree = "<group>"; };
+		5B1091CE183146C700CF2A98 /* DCAPIException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DCAPIException.m; sourceTree = "<group>"; };
+		5B1091CF183146C700CF2A98 /* Notification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Notification.h; sourceTree = "<group>"; };
+		5B1091D0183146C700CF2A98 /* Notification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Notification.m; sourceTree = "<group>"; };
+		5B1091D1183146C700CF2A98 /* ProtocolKeys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProtocolKeys.h; sourceTree = "<group>"; };
+		5B1091D2183146C700CF2A98 /* ProtocolKeys.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProtocolKeys.m; sourceTree = "<group>"; };
+		5B1091D3183146C700CF2A98 /* QRCodeResp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QRCodeResp.h; sourceTree = "<group>"; };
+		5B1091D4183146C700CF2A98 /* QRCodeResp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QRCodeResp.m; sourceTree = "<group>"; };
+		5B1091D5183146C700CF2A98 /* TokenResp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TokenResp.h; sourceTree = "<group>"; };
+		5B1091D6183146C700CF2A98 /* TokenResp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TokenResp.m; sourceTree = "<group>"; };
+		5B1091D7183146C700CF2A98 /* Transaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Transaction.h; sourceTree = "<group>"; };
+		5B1091D8183146C700CF2A98 /* Transaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Transaction.m; sourceTree = "<group>"; };
+		5B1092221831480400CF2A98 /* TestAPI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TestAPI.xcodeproj; path = TestDAPI/TestAPI.xcodeproj; sourceTree = "<group>"; };
+		5B50F5B61856159000D10FB4 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		5B50F5B71856159000D10FB4 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		5B7CA2531835D212009BA4F7 /* HOTPGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HOTPGenerator.h; sourceTree = "<group>"; };
+		5B7CA2541835D212009BA4F7 /* HOTPGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HOTPGenerator.m; sourceTree = "<group>"; };
+		5B7CA2551835D212009BA4F7 /* OTPGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTPGenerator.h; sourceTree = "<group>"; };
+		5B7CA2561835D212009BA4F7 /* OTPGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTPGenerator.m; sourceTree = "<group>"; };
+		5B7CA2571835D212009BA4F7 /* TOTPGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TOTPGenerator.h; sourceTree = "<group>"; };
+		5B7CA2581835D212009BA4F7 /* TOTPGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TOTPGenerator.m; sourceTree = "<group>"; };
+		5BC236F5183CC61A00787ACE /* MF_Base32Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MF_Base32Additions.h; sourceTree = "<group>"; };
+		5BC236F6183CC61A00787ACE /* MF_Base32Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MF_Base32Additions.m; sourceTree = "<group>"; };
+		5BC9F2FE18393E840093DB26 /* libQREncoder.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQREncoder.a; path = ../../../../QRCOde/ObjQREncoder/BIN/libQREncoder.a; sourceTree = "<group>"; };
+		5BC9F303183942680093DB26 /* libqrencode.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqrencode.a; path = "../../../../../../../Downloads/iOS-QREncoder-master/third-party/libqrencode/lib/libqrencode.a"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5B10919D1831469100CF2A98 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5BC9F304183942680093DB26 /* libqrencode.a in Frameworks */,
+				5B1091A41831469100CF2A98 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B1091AD1831469100CF2A98 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B1091B21831469100CF2A98 /* XCTest.framework in Frameworks */,
+				5B1091B51831469100CF2A98 /* UIKit.framework in Frameworks */,
+				5B1091B81831469100CF2A98 /* libDCAPID.a in Frameworks */,
+				5B1091B31831469100CF2A98 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5B1091971831469100CF2A98 = {
+			isa = PBXGroup;
+			children = (
+				5B1092221831480400CF2A98 /* TestAPI.xcodeproj */,
+				5B1091A51831469100CF2A98 /* DCAPID */,
+				5B1091B91831469100CF2A98 /* DCAPIDTests */,
+				5B1091A21831469100CF2A98 /* Frameworks */,
+				5B1091A11831469100CF2A98 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5B1091A11831469100CF2A98 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5B1091A01831469100CF2A98 /* libDCAPID.a */,
+				5B1091B01831469100CF2A98 /* DCAPIDTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5B1091A21831469100CF2A98 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5BC9F303183942680093DB26 /* libqrencode.a */,
+				5BC9F2FE18393E840093DB26 /* libQREncoder.a */,
+				5B1091A31831469100CF2A98 /* Foundation.framework */,
+				5B1091B11831469100CF2A98 /* XCTest.framework */,
+				5B1091B41831469100CF2A98 /* UIKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5B1091A51831469100CF2A98 /* DCAPID */ = {
+			isa = PBXGroup;
+			children = (
+				5B50F5B61856159000D10FB4 /* Reachability.h */,
+				5B50F5B71856159000D10FB4 /* Reachability.m */,
+				5BC236F5183CC61A00787ACE /* MF_Base32Additions.h */,
+				5BC236F6183CC61A00787ACE /* MF_Base32Additions.m */,
+				5B7CA2531835D212009BA4F7 /* HOTPGenerator.h */,
+				5B7CA2541835D212009BA4F7 /* HOTPGenerator.m */,
+				5B7CA2551835D212009BA4F7 /* OTPGenerator.h */,
+				5B7CA2561835D212009BA4F7 /* OTPGenerator.m */,
+				5B7CA2571835D212009BA4F7 /* TOTPGenerator.h */,
+				5B7CA2581835D212009BA4F7 /* TOTPGenerator.m */,
+				5B1091C9183146C700CF2A98 /* AuthResponse.h */,
+				5B1091CA183146C700CF2A98 /* AuthResponse.m */,
+				5B1091CB183146C700CF2A98 /* CardInfo.h */,
+				5B1091CC183146C700CF2A98 /* CardInfo.m */,
+				5B1091CD183146C700CF2A98 /* DCAPIException.h */,
+				5B1091CE183146C700CF2A98 /* DCAPIException.m */,
+				5B1091CF183146C700CF2A98 /* Notification.h */,
+				5B1091D0183146C700CF2A98 /* Notification.m */,
+				5B1091D1183146C700CF2A98 /* ProtocolKeys.h */,
+				5B1091D2183146C700CF2A98 /* ProtocolKeys.m */,
+				5B1091D3183146C700CF2A98 /* QRCodeResp.h */,
+				5B1091D4183146C700CF2A98 /* QRCodeResp.m */,
+				5B1091D5183146C700CF2A98 /* TokenResp.h */,
+				5B1091D6183146C700CF2A98 /* TokenResp.m */,
+				5B1091D7183146C700CF2A98 /* Transaction.h */,
+				5B1091D8183146C700CF2A98 /* Transaction.m */,
+				5B1091A81831469100CF2A98 /* DCAPID.h */,
+				5B1091AA1831469100CF2A98 /* DCAPID.m */,
+				5B1091A61831469100CF2A98 /* Supporting Files */,
+			);
+			path = DCAPID;
+			sourceTree = "<group>";
+		};
+		5B1091A61831469100CF2A98 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				5B1091A71831469100CF2A98 /* DCAPID-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		5B1091B91831469100CF2A98 /* DCAPIDTests */ = {
+			isa = PBXGroup;
+			children = (
+				5B1091BF1831469100CF2A98 /* DCAPIDTests.m */,
+				5B1091BA1831469100CF2A98 /* Supporting Files */,
+			);
+			path = DCAPIDTests;
+			sourceTree = "<group>";
+		};
+		5B1091BA1831469100CF2A98 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				5B1091BB1831469100CF2A98 /* DCAPIDTests-Info.plist */,
+				5B1091BC1831469100CF2A98 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		5BCD58E318421F0B00FE815D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5BCD58E818421F0B00FE815D /* TestAPI.app */,
+				5BCD58EA18421F0B00FE815D /* TestAPITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5B10919F1831469100CF2A98 /* DCAPID */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5B1091C31831469100CF2A98 /* Build configuration list for PBXNativeTarget "DCAPID" */;
+			buildPhases = (
+				5B10919C1831469100CF2A98 /* Sources */,
+				5B10919D1831469100CF2A98 /* Frameworks */,
+				5B10919E1831469100CF2A98 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DCAPID;
+			productName = DCAPID;
+			productReference = 5B1091A01831469100CF2A98 /* libDCAPID.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		5B1091AF1831469100CF2A98 /* DCAPIDTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5B1091C61831469100CF2A98 /* Build configuration list for PBXNativeTarget "DCAPIDTests" */;
+			buildPhases = (
+				5B1091AC1831469100CF2A98 /* Sources */,
+				5B1091AD1831469100CF2A98 /* Frameworks */,
+				5B1091AE1831469100CF2A98 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5B1091B71831469100CF2A98 /* PBXTargetDependency */,
+			);
+			name = DCAPIDTests;
+			productName = DCAPIDTests;
+			productReference = 5B1091B01831469100CF2A98 /* DCAPIDTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5B1091981831469100CF2A98 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Ande Tecnologia";
+			};
+			buildConfigurationList = 5B10919B1831469100CF2A98 /* Build configuration list for PBXProject "DCAPID" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 5B1091971831469100CF2A98;
+			productRefGroup = 5B1091A11831469100CF2A98 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 5BCD58E318421F0B00FE815D /* Products */;
+					ProjectRef = 5B1092221831480400CF2A98 /* TestAPI.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				5B10919F1831469100CF2A98 /* DCAPID */,
+				5B1091AF1831469100CF2A98 /* DCAPIDTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		5BCD58E818421F0B00FE815D /* TestAPI.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = TestAPI.app;
+			remoteRef = 5BCD58E718421F0B00FE815D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5BCD58EA18421F0B00FE815D /* TestAPITests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = TestAPITests.xctest;
+			remoteRef = 5BCD58E918421F0B00FE815D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5B1091AE1831469100CF2A98 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B1091BE1831469100CF2A98 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5B10919C1831469100CF2A98 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B1091E0183146C700CF2A98 /* Transaction.m in Sources */,
+				5BC236F7183CC61A00787ACE /* MF_Base32Additions.m in Sources */,
+				5B1091DA183146C700CF2A98 /* CardInfo.m in Sources */,
+				5B7CA25A1835D212009BA4F7 /* OTPGenerator.m in Sources */,
+				5B1091DF183146C700CF2A98 /* TokenResp.m in Sources */,
+				5B7CA25B1835D212009BA4F7 /* TOTPGenerator.m in Sources */,
+				5B1091D9183146C700CF2A98 /* AuthResponse.m in Sources */,
+				5B1091DE183146C700CF2A98 /* QRCodeResp.m in Sources */,
+				5B1091DC183146C700CF2A98 /* Notification.m in Sources */,
+				5B7CA2591835D212009BA4F7 /* HOTPGenerator.m in Sources */,
+				5B50F5B81856159000D10FB4 /* Reachability.m in Sources */,
+				5B1091DD183146C700CF2A98 /* ProtocolKeys.m in Sources */,
+				5B1091AB1831469100CF2A98 /* DCAPID.m in Sources */,
+				5B1091DB183146C700CF2A98 /* DCAPIException.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B1091AC1831469100CF2A98 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B1091C01831469100CF2A98 /* DCAPIDTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5B1091B71831469100CF2A98 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5B10919F1831469100CF2A98 /* DCAPID */;
+			targetProxy = 5B1091B61831469100CF2A98 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		5B1091BC1831469100CF2A98 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5B1091BD1831469100CF2A98 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		5B1091C11831469100CF2A98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		5B1091C21831469100CF2A98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5B1091C41831469100CF2A98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				DSTROOT = /tmp/DCAPID.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DCAPID/DCAPID-Prefix.pch";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/rodrigo/Documents/Projects/Scopus/QRCOde/ObjQREncoder/BIN,
+					"/Users/rodrigo/Downloads/iOS-QREncoder-master/third-party/libqrencode/lib",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "/Users/rodrigo/Documents/Projects/Scopus/QRCOde/ObjQREncoder/BIN/include/QREncoder/ /Users/rodrigo/Downloads/iOS-QREncoder-master/third-party/libqrencode/include/";
+				VALID_ARCHS = "arm64 armv7 armv7s armv6";
+			};
+			name = Debug;
+		};
+		5B1091C51831469100CF2A98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/DCAPID.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DCAPID/DCAPID-Prefix.pch";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/rodrigo/Documents/Projects/Scopus/QRCOde/ObjQREncoder/BIN,
+					"/Users/rodrigo/Downloads/iOS-QREncoder-master/third-party/libqrencode/lib",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "/Users/rodrigo/Documents/Projects/Scopus/QRCOde/ObjQREncoder/BIN/include/QREncoder/ /Users/rodrigo/Downloads/iOS-QREncoder-master/third-party/libqrencode/include/";
+				VALID_ARCHS = "arm64 armv7 armv7s armv6";
+			};
+			name = Release;
+		};
+		5B1091C71831469100CF2A98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DCAPID/DCAPID-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "DCAPIDTests/DCAPIDTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		5B1091C81831469100CF2A98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DCAPID/DCAPID-Prefix.pch";
+				INFOPLIST_FILE = "DCAPIDTests/DCAPIDTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5B10919B1831469100CF2A98 /* Build configuration list for PBXProject "DCAPID" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B1091C11831469100CF2A98 /* Debug */,
+				5B1091C21831469100CF2A98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5B1091C31831469100CF2A98 /* Build configuration list for PBXNativeTarget "DCAPID" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B1091C41831469100CF2A98 /* Debug */,
+				5B1091C51831469100CF2A98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5B1091C61831469100CF2A98 /* Build configuration list for PBXNativeTarget "DCAPIDTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B1091C71831469100CF2A98 /* Debug */,
+				5B1091C81831469100CF2A98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5B1091981831469100CF2A98 /* Project object */;
+}
