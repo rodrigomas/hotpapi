@@ -8,13 +8,11 @@
 
 #import "ViewController.h"
 #import "DCAPID.h"
-#import "Reachability.h"
 #import "UAirship.h"
 #import <CoreLocation/CoreLocation.h>
 
 @interface ViewController ()
 {
-   Reachability *internetReachableFoo;
    AuthResponse *respd;
    CLLocationManager *loc;
     float lat;
@@ -23,35 +21,6 @@
 @end
 
 @implementation ViewController
-
-- (void)testInternetConnection
-{
-    internetReachableFoo = [Reachability reachabilityWithHostname:@"www.google.com"];
-    
-  /*  // Internet is reachable
-    internetReachableFoo.reachableBlock = ^(Reachability*reach)
-    {
-        // Update the UI on the main thread
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSLog(@"Yayyy, we have the interwebs!");
-            
-            [_lbint setText:@"INTERNET"];
-        });
-    };
-    
-    // Internet is not reachable
-    internetReachableFoo.unreachableBlock = ^(Reachability*reach)
-    {
-        // Update the UI on the main thread
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSLog(@"Someone broke the internet :(");
-        });
-        
-        [_lbint setText:@"NO INTERNET"];
-    };*/
-    
-    [internetReachableFoo startNotifier];
-}
 
 - (void) locationManager:(CLLocationManager*)manager didUpdateToLocation:(CLLocation *) newLocation fromLocation: (CLLocation*) oldLocation
 {
@@ -75,15 +44,6 @@
     lat = 12.0;
     lng = 10.0;
     
-      [self testInternetConnection];
-    
-    if(internetReachableFoo.isReachable)
-    {
-        [_lbint setText:@"INTERNET"];
-    } else
-    {
-        [_lbint setText:@"NO INTERNET"];
-    }
 }
 - (IBAction)testToken:(id)sender {
     
@@ -153,7 +113,7 @@
         
        NSLog(@"%@", vv);
         
-        respd = [[DCAPID getInstance] registerPhoneWithEmail:email withPassword:pass withPhoneID:uniqueID];
+        respd = [[DCAPID getInstance] registerPhoneWithEmail:email withPassword:pass withPhoneID:uniqueID withCard:@"1114" withCardType:@"01"];
         
         AuthResponse *r = respd;
         

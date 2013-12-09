@@ -81,7 +81,6 @@
 		5BCD58D41841471000FE815D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		5BCD58DF1841473800FE815D /* AirshipConfig.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AirshipConfig.plist; sourceTree = "<group>"; };
 		5BCD58E11841482600FE815D /* libUAirship-3.0.2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libUAirship-3.0.2.a"; path = "../../../../../../../../Downloads/libUAirship-latest/Airship/libUAirship-3.0.2.a"; sourceTree = "<group>"; };
-		5BCD58ED1843D9D400FE815D /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,7 +169,6 @@
 			children = (
 				5B1091FC1831480400CF2A98 /* AppDelegate.h */,
 				5B1091FD1831480400CF2A98 /* AppDelegate.m */,
-				5BCD58ED1843D9D400FE815D /* Reachability.h */,
 				5B1091FF1831480400CF2A98 /* Main.storyboard */,
 				5B1092021831480400CF2A98 /* ViewController.h */,
 				5B1092031831480400CF2A98 /* ViewController.m */,

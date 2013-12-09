@@ -24,6 +24,8 @@
 
 @property (nonatomic, retain) NSNumber *_comunicationTimeout;
 
+- (BOOL)isConnected;
+
 - (void)setupWithAddress: (NSString*) serverAdress withTimeout: (int) comunicationTimeout;
 
 - (BOOL)registerUserWithName: (NSString*) name withCPF: (NSString*) cpf withRG: (NSString*) rg withBirth: (NSDate*) birthDate withEmail: (NSString*) email;

@@ -18,8 +18,9 @@
 static DCAPID *sharedSingleton = NULL;
 
 static NSString *ERROR_WRONG_SERVER_ADDRESS = @"O endereço do servidor está incorreto.";
-static NSString *ERROR_CONNECTION_TIMEOUT = @"Tempo limite de conexão estourado";
-static NSString *ERROR_NO_CONNECTION = @"Sem conexão com a Internet";
+static NSString *ERROR_CONNECTION_TIMEOUT = @"Não foi possível conectar ao Serviço Wallet";
+static NSString *ERROR_NO_CONNECTION = @"Sem conexão com a Internet.";
+static NSString *ERROR_CONNECTION_ERROR = @"Falha na comunicação.";
 
 static NSString *ERROR_HEADER = @"DCAPI Error";
 static NSString *ERROR_INTERNAL_MESSAGE = @"Falha interna!";
@@ -36,7 +37,7 @@ static NSString *SERVLET_RECEIVETRANSACTIONS = @"ReceiveTransactions";
 static NSString *SERVLET_EVALTRANSACTION = @"EvalTransaction";
 static NSString *SERVLET_REGUSERNOTIFICATIONS = @"RegUserNotifications";
 
-static Reachability *internetReachable;
+static Reachability *internetReachable = nil;
 
 enum ErrorCode {
     SERVER_REPONSE_ERROR, SERVER_COMMUNICATION_ERROR, INTERNAL_API_ERROR
@@ -64,13 +65,23 @@ NSString *decodeURL(NSString *value);
     return sharedSingleton;
 }
 
+- (BOOL)isConnected
+{
+    if (internetReachable == nil)
+    {
+        return false;
+    } else
+    {
+        return internetReachable.isReachable;
+    }
+}
+
 - (void)setupWithAddress: (NSString*) serverAdress withTimeout: (int) comunicationTimeout
 {
     __serverAdress = serverAdress;
     __comunicationTimeout = [[NSNumber alloc] initWithInt:comunicationTimeout];
     
-    internetReachable = [Reachability reachabilityWithHostname:serverAdress];
-    
+    internetReachable = [Reachability reachabilityForInternetConnection];
     [internetReachable startNotifier];
 }
 
@@ -78,7 +89,7 @@ NSString *decodeURL(NSString *value);
 {
     @try {
         
-        if(!internetReachable.isReachable)
+        if((internetReachable != nil) && !internetReachable.isReachable)
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
@@ -141,7 +152,7 @@ NSString *decodeURL(NSString *value);
     @try
     {
         
-        if(!internetReachable.isReachable)
+        if((internetReachable != nil) && !internetReachable.isReachable)
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
@@ -203,7 +214,7 @@ NSString *decodeURL(NSString *value);
 {
     @try
     {
-        if(!internetReachable.isReachable)
+        if((internetReachable != nil) && !internetReachable.isReachable)
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
@@ -256,7 +267,7 @@ NSString *decodeURL(NSString *value);
 {
     @try
     {
-        if(!internetReachable.isReachable)
+        if((internetReachable != nil) && !internetReachable.isReachable)
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
@@ -322,7 +333,7 @@ NSString *decodeURL(NSString *value);
 {
     @try {
         
-        if(!internetReachable.isReachable)
+        if((internetReachable != nil) && !internetReachable.isReachable)
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
@@ -394,7 +405,7 @@ NSString *decodeURL(NSString *value);
     
     @try {
         
-        if(!internetReachable.isReachable)
+        if((internetReachable != nil) && !internetReachable.isReachable)
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
@@ -546,7 +557,7 @@ NSString *decodeURL(NSString *value);
 {
    @try{
        
-       if(!internetReachable.isReachable)
+       if((internetReachable != nil) && !internetReachable.isReachable)
        {
            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
            NSString *msg = ERROR_NO_CONNECTION;
@@ -616,7 +627,7 @@ NSString *decodeURL(NSString *value);
     
     @try {
         
-        if(!internetReachable.isReachable)
+        if((internetReachable != nil) && !internetReachable.isReachable)
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
@@ -748,7 +759,7 @@ NSString *decodeURL(NSString *value);
     
     @try {
         
-        if(!internetReachable.isReachable)
+        if((internetReachable != nil) && !internetReachable.isReachable)
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
@@ -878,7 +889,7 @@ NSString *decodeURL(NSString *value);
 {
    @try {
        
-       if(!internetReachable.isReachable)
+       if((internetReachable != nil) && !internetReachable.isReachable)
        {
            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
            NSString *msg = ERROR_NO_CONNECTION;
@@ -1246,11 +1257,30 @@ NSMutableArray* makeHTTPRequest(NSString* ServletAddress, NSMutableDictionary* a
     {
         if(requestError != nil)
         {
-            DCAPIException *ex = [[DCAPIException alloc] initWithName:[requestError localizedDescription] reason:[requestError localizedFailureReason] userInfo:nil];
-            ex.code = [[NSString alloc] initWithFormat:@"%d", SERVER_COMMUNICATION_ERROR];
-            ex.message = ex.reason;
-            ex.show = true;
-            @throw (ex);
+            if([requestError code] == NSURLErrorNotConnectedToInternet)
+            {
+                DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
+                ex.code = [[NSString alloc] initWithFormat:@"%d", SERVER_COMMUNICATION_ERROR];
+                ex.message = ex.reason;
+                ex.show = true;
+                @throw (ex);
+            } else if([requestError code] == NSURLErrorTimedOut )
+            {
+                DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_CONNECTION_TIMEOUT userInfo:nil];
+                ex.code = [[NSString alloc] initWithFormat:@"%d", SERVER_COMMUNICATION_ERROR];
+                ex.message = ex.reason;
+                ex.show = true;
+                @throw (ex);
+            } else
+            {
+                //DCAPIException *ex = [[DCAPIException alloc] initWithName:[requestError localizedDescription] reason:[requestError localizedFailureReason] userInfo:nil];
+                DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:[requestError localizedFailureReason] userInfo:nil];
+                ex.code = [[NSString alloc] initWithFormat:@"%d", SERVER_COMMUNICATION_ERROR];
+                ex.message = ERROR_CONNECTION_ERROR;
+                ex.show = true;
+                @throw (ex);
+            }
+            
         } else
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_MESSAGE userInfo:nil];
