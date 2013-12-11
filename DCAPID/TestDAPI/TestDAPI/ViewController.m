@@ -33,7 +33,7 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     
-    [[DCAPID getInstance] setupWithAddress:@"http://andedcserver.cloudapp.net:8080/DigitalCards-Scopus/" withTimeout:300000];
+    [[DCAPID getInstance] setupWithAddress:@"http://andedcserver.cloudapp.net:8080/Test-DigitalCards-Scopus/" withTimeout:300000];
     
     loc = [[CLLocationManager alloc] init];
     
@@ -78,12 +78,12 @@
 
 - (IBAction)tested:(id)sender {
     
-    NSDate *dt = [self dateWithYear:1986 month:11 day:11];
+    NSDate *dt = [self dateWithYear:1985 month:12 day:12];
     
-    NSString *user = @"Ana Marques da Silva";
-    NSString *cpf =@"456456";
-    NSString *rg = @"456456";
-    NSString *email = @"ana@gmail.com";
+    NSString *user = @"Rodrigo Marques da Silva";
+    NSString *cpf =@"123123";
+    NSString *rg = @"123123";
+    NSString *email = @"rodrigomas@gmail.com";
     NSString *pass = @"123456";
      
      /*
@@ -124,6 +124,16 @@
         NSLog(@"%lu", (unsigned long)[arr count]);
         
         arr = [[DCAPID getInstance] receiveBenefitsWithSecret:r.secretKey withPhoneID:uniqueID withGUID:r.GUID];
+        
+        if([arr count] > 0)
+        {
+            Notification *n = (Notification*)arr[0];
+            
+            if(n.image != nil)
+            {
+                [_imageview2 setImage:n.image];
+            }
+        }
         
         NSLog(@"%lu", (unsigned long)[arr count]);
         

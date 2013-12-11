@@ -714,9 +714,25 @@ NSString *decodeURL(NSString *value);
                 {
                     @try {
                         
-                        NSString *image64 = dic[[ProtocolKeys NOT_IMAGE]];
+                        NSMutableString *image64 = [[NSMutableString alloc] initWithString:dic[[ProtocolKeys NOT_IMAGE]]];
                         
-                        NSData *data = [[NSData alloc] initWithBase64EncodedString:image64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
+                        [image64 replaceOccurrencesOfString:@"-" withString:@"+" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [image64 length])];
+                        
+                        [image64 replaceOccurrencesOfString:@"_" withString:@"/" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [image64 length])];
+                        
+                        NSData *data = nil;
+                        
+                        for(int j = 0; j < 9; j++)
+                        {
+                            data = [[NSData alloc] initWithBase64EncodedString:image64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
+                            
+                            if(data != nil)
+                            {
+                                break;
+                            }
+                            
+                            [image64 appendString:@"="];
+                        }
                         
                         UIImage *image = [UIImage imageWithData:data];
                         

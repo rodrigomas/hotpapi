@@ -14,5 +14,6 @@
 @property (strong, nonatomic) IBOutlet UIDatePicker *datep;
 @property (strong, nonatomic) IBOutlet UIImageView *imageView;
 @property (strong, nonatomic) IBOutlet UILabel *lbint;
+@property (weak, nonatomic) IBOutlet UIImageView *imageview2;
 
 @end
