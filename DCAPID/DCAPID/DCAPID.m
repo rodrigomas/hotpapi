@@ -349,8 +349,22 @@ NSString *decodeURL(NSString *value);
         args[ [ProtocolKeys CLIENT_EMAIL] ] = email;
         args[ [ProtocolKeys PASSWORD] ] = password;
         args[ [ProtocolKeys IMEI] ] = PhoneID;
-        args[ [ProtocolKeys CARD_CODE] ] = cardTypeCode;
-        args[ [ProtocolKeys CARD_NUMBER] ] = cardNumber;
+        
+        if( cardTypeCode == nil )
+        {
+           args[ [ProtocolKeys CARD_CODE] ] = @"";
+        } else
+        {
+            args[ [ProtocolKeys CARD_CODE] ] = cardTypeCode;
+        }
+        
+        if( cardNumber == nil )
+        {
+            args[ [ProtocolKeys CARD_NUMBER] ] = @"";
+        } else
+        {
+            args[ [ProtocolKeys CARD_NUMBER] ] = cardNumber;
+        }
         
         NSMutableArray * resp = makeHTTPRequest([[NSString alloc] initWithFormat:@"%@%@", __serverAdress, SERVLET_REGPHONE], args, [__comunicationTimeout intValue]);
         
