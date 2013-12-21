@@ -1027,7 +1027,7 @@ NSString *decodeURL(NSString *value);
     QRcode_free(qrcode_);
     
     resp.token = Token;
-    resp.timeout = timeout % 30;
+    resp.timeout = timeout % 30 + 1;
     resp.interval = 30;
     
     return resp;
@@ -1060,7 +1060,7 @@ NSString *decodeURL(NSString *value);
     TokenResp *resp = [TokenResp alloc];
     
     resp.token = Token;
-    resp.timeout = timeout % 30;
+    resp.timeout = timeout % 30 + 1;
     
     return resp;
 }
