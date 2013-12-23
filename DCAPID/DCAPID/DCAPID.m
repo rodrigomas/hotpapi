@@ -33,6 +33,7 @@ static NSString *SERVLET_RETRIEVEEMAIL = @"RetrieveEmail";
 static NSString *SERVLET_REGPHONE = @"RegPhone";
 static NSString *SERVLET_RECEIVECARDS = @"ReceiveCards";
 static NSString *SERVLET_RECEIVENOTIFICATIONS = @"ReceiveBenefits";
+static NSString *SERVLET_DOWNLOADBENEFITIMAGE = @"DownloadImageBenefit";
 static NSString *SERVLET_RECEIVETRANSACTIONS = @"ReceiveTransactions";
 static NSString *SERVLET_EVALTRANSACTION = @"EvalTransaction";
 static NSString *SERVLET_REGUSERNOTIFICATIONS = @"RegUserNotifications";
@@ -52,6 +53,7 @@ NSDate* convertToUTC( NSDate* sourceDate);
 NSString *GetSecretFormat1(NSString *secret, NSString *phoneid);
 NSString *GetSecretFormat2(NSString *secret, NSString *phoneid, NSString *cardid);
 NSString *decodeURL(NSString *value);
+NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args, int comunicationTimeout);
 
 @implementation DCAPID
 
@@ -635,6 +637,72 @@ NSString *decodeURL(NSString *value);
     return false;
 }
 
+- (UIImage*) downloadImageBenefitWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withBGUID: (NSString*) bguid
+{
+    UIImage * img = nil;
+    
+    @try {
+        
+        if((internetReachable != nil) && !internetReachable.isReachable)
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
+            NSString *msg = ERROR_NO_CONNECTION;
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", SERVER_COMMUNICATION_ERROR];
+            ex.show = true;
+            ex.message = msg;
+            
+            @throw (ex);
+        }
+        
+        NSString *sec = GetSecretFormat1(secret, PhoneID);
+        NSData* dataKey = [MF_Base32Codec dataFromBase32String:sec];
+        
+        NSString *Token;
+        
+        TOTPGenerator *otpProvider = [[TOTPGenerator alloc] initWithSecret:dataKey algorithm:kOTPGeneratorSHA1Algorithm digits:6 period:30];
+        
+        NSDate *currentDate = [NSDate date];
+        
+        Token = [otpProvider generateOTPForDate:currentDate];
+        
+        NSMutableDictionary * args = [[NSMutableDictionary alloc] init];
+        
+        args[ [ProtocolKeys GUID] ] = guid;
+        args[ [ProtocolKeys TOKEN] ] = Token;
+        args[ [ProtocolKeys NOT_GUID] ] = bguid;
+        
+        NSData * resp = makeHTTPRequestData([[NSString alloc] initWithFormat:@"%@%@", __serverAdress, SERVLET_DOWNLOADBENEFITIMAGE], args, [__comunicationTimeout intValue]);
+        
+        if (resp == nil || [resp length] == 0)
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INVALID_RESPONSE_MESSAGE userInfo:nil];
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", SERVER_REPONSE_ERROR];
+            ex.show = false;
+            ex.message = ex.reason;
+            
+            @throw (ex);
+
+        }
+        
+        img = [UIImage imageWithData:resp];
+        
+    }
+    @catch (DCAPIException *exception)
+    {
+        @throw;
+    }
+    @catch (NSException *exception) {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:exception.reason userInfo:nil];
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_API_ERROR];
+        ex.show = false;
+        ex.message = ex.reason;
+        
+        @throw (ex);
+    }
+    
+    return img;
+}
+
 - (NSMutableArray*) receiveBenefitsWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid
 {
     NSMutableArray *arr = [[NSMutableArray alloc] init];
@@ -694,6 +762,7 @@ NSString *decodeURL(NSString *value);
             [protokeys addObject:[ProtocolKeys NOT_SUBJECT]];
             [protokeys addObject:[ProtocolKeys NOT_MESSAGE]];
             [protokeys addObject:[ProtocolKeys NOT_TIMESTAMP]];
+            [protokeys addObject:[ProtocolKeys NOT_GUID]];
             
             for (int i = 0; i < [resp count]; i++)
             {
@@ -713,6 +782,7 @@ NSString *decodeURL(NSString *value);
                 
                 note.title = dic[[ProtocolKeys NOT_SUBJECT]];
                 note.message = dic[[ProtocolKeys NOT_MESSAGE]];
+                note.bguid = dic[[ProtocolKeys NOT_GUID]];
                 
                 NSString *dateStr = dic[[ProtocolKeys NOT_TIMESTAMP]];
                 
@@ -1246,6 +1316,83 @@ NSString *decodeURL(NSString *value)
     }
     
     return encodedString;
+}
+
+NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args, int comunicationTimeout)
+{
+    
+    NSData* data = nil;
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:ServletAddress] cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData timeoutInterval:comunicationTimeout];
+    
+    [request setHTTPMethod:@"POST"];
+    
+    NSMutableString *dataString = [[NSMutableString alloc] init];
+    
+    for (id key in args) {
+        id value = [args objectForKey:key];
+        [dataString appendFormat:@"%@=%@&", (NSString*)key, (NSString*)value];
+    }
+    
+    [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[dataString length]] forHTTPHeaderField:@"Content-length"];
+    
+    [request setHTTPBody:[dataString dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    NSURLResponse* response = nil;
+    
+    NSError *requestError;
+    
+    @try {
+        data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&requestError];
+    }
+    @catch (NSException *exception) {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:exception.reason userInfo:nil];
+        ex.code = [[NSString alloc] initWithFormat:@"%d", INTERNAL_API_ERROR];
+        ex.message = ex.reason;
+        ex.show = false;
+        
+        @throw (ex);
+    }
+    
+    if(data == nil || ([data length] == 0))
+    {
+        if(requestError != nil)
+        {
+            if([requestError code] == NSURLErrorNotConnectedToInternet)
+            {
+                DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
+                ex.code = [[NSString alloc] initWithFormat:@"%d", SERVER_COMMUNICATION_ERROR];
+                ex.message = ex.reason;
+                ex.show = true;
+                @throw (ex);
+            } else if([requestError code] == NSURLErrorTimedOut )
+            {
+                DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_CONNECTION_TIMEOUT userInfo:nil];
+                ex.code = [[NSString alloc] initWithFormat:@"%d", SERVER_COMMUNICATION_ERROR];
+                ex.message = ex.reason;
+                ex.show = true;
+                @throw (ex);
+            } else
+            {
+                //DCAPIException *ex = [[DCAPIException alloc] initWithName:[requestError localizedDescription] reason:[requestError localizedFailureReason] userInfo:nil];
+                DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:[requestError localizedFailureReason] userInfo:nil];
+                ex.code = [[NSString alloc] initWithFormat:@"%d", SERVER_COMMUNICATION_ERROR];
+                ex.message = ERROR_CONNECTION_ERROR;
+                ex.show = true;
+                @throw (ex);
+            }
+            
+        } else
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_MESSAGE userInfo:nil];
+            ex.code = [[NSString alloc] initWithFormat:@"%d", INTERNAL_API_ERROR];
+            ex.message = ex.reason;
+            ex.show = false;
+            @throw (ex);
+        }
+    }
+    
+    return data;
 }
 
 NSMutableArray* makeHTTPRequest(NSString* ServletAddress, NSMutableDictionary* args, int comunicationTimeout)

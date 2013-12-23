@@ -33,7 +33,7 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     
-    [[DCAPID getInstance] setupWithAddress:@"http://andedcserver.cloudapp.net:8080/DigitalCards-DummyServer/" withTimeout:300000];
+    [[DCAPID getInstance] setupWithAddress:@"http://andedcserver.cloudapp.net:8080/Test-DigitalCards-Scopus/" withTimeout:300000];
     
     loc = [[CLLocationManager alloc] init];
     
@@ -80,19 +80,19 @@
     
     NSDate *dt = [self dateWithYear:1985 month:12 day:12];
     
-    /*NSString *user = @"Rodrigo Marques da Silva";
+    NSString *user = @"Rodrigo Marques da Silva";
     NSString *cpf =@"123123";
     NSString *rg = @"123123";
     NSString *email = @"rodrigomas@gmail.com";
-    NSString *pass = @"123456";*/
+    NSString *pass = @"123456";
      
     
 
-    NSString *pass = @"123456";
+    /*NSString *pass = @"123456";
     NSString *user = @"Homer Simpson";
     NSString *cpf =@"123456";
     NSString *rg = @"654321";
-    NSString *email = @"homer@simpsons.com";
+    NSString *email = @"homer@simpsons.com";*/
 
     @try {
         NSString *uniqueID = [UIDevice currentDevice].identifierForVendor.UUIDString;
@@ -133,6 +133,10 @@
             {
                 [_imageview2 setImage:n.image];
             }
+            
+            UIImage *img = [[DCAPID getInstance] downloadImageBenefitWithSecret:r.secretKey withPhoneID:uniqueID withGUID:r.GUID withBGUID:n.bguid];
+            
+            [_imageview2 setImage:img];
         }
         
         NSLog(@"%lu", (unsigned long)[arr count]);

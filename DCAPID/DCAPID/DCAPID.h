@@ -44,6 +44,8 @@
 
 - (NSMutableArray*) receiveBenefitsWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid;
 
+- (UIImage*) downloadImageBenefitWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withBGUID: (NSString*) bguid;
+
 - (NSMutableArray*) receiveTransactionsWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withCNT: (int) cnt withLastGUID: (NSString*) lastGuid;
 
 - (BOOL) sendEvaluationWithTransGuid: (NSString*) transactionGuid withRate: (int) rate withMessage: (NSString*) message withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withKEY: (NSString*) secretKey;

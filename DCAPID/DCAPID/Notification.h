@@ -21,4 +21,6 @@
 
 @property UIImage *image;
 
+@property NSString *bguid;
+
 @end

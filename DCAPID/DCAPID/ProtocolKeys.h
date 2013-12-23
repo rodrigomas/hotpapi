@@ -42,6 +42,7 @@
 + (NSString*) NOT_MESSAGE;
 + (NSString*) NOT_TIMESTAMP;
 + (NSString*) NOT_IMAGE;
++ (NSString*) NOT_GUID;
 
 + (NSString*) TRANS_CNT;
 + (NSString*) TRANS_GUID;

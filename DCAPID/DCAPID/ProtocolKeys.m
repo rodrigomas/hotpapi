@@ -42,6 +42,7 @@
  static NSString *theNOT_MESSAGE = @"not_message";
  static NSString *theNOT_TIMESTAMP = @"not_timestamp";
  static NSString  *theNOT_IMAGE = @"not_image";
+ static NSString  *theNOT_GUID = @"not_guid";
 
  static NSString *theTRANS_CNT = @"trans_cnt";
  static NSString *theTRANS_GUID = @"trans_guid";
@@ -92,6 +93,7 @@
 + (NSString*) NOT_MESSAGE { return theNOT_MESSAGE; }
 + (NSString*) NOT_TIMESTAMP { return theNOT_TIMESTAMP; }
 + (NSString*) NOT_IMAGE { return theNOT_IMAGE; }
++ (NSString*) NOT_GUID { return theNOT_GUID; }
 
 + (NSString*) TRANS_CNT { return theTRANS_CNT; }
 + (NSString*) TRANS_GUID { return theTRANS_GUID; }
