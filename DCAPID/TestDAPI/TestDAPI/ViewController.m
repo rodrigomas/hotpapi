@@ -13,7 +13,7 @@
 
 @interface ViewController ()
 {
-   AuthResponse *respd;
+    NSString *username;
    CLLocationManager *loc;
     float lat;
     float lng;
@@ -28,12 +28,16 @@
     lng = newLocation.coordinate.longitude;
 }
 
+//#define API_URL @"https://labs245.scopus.com.br/wallet/"
+#define API_URL @"https://walletbsp.scopus.com.br/wallet/"
+//#define API_URL @"http://andedcserver.cloudapp.net:8080/wallet/"
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     
-    [[DCAPID getInstance] setupWithAddress:@"http://andedcserver.cloudapp.net:8080/Test-DigitalCards-Scopus/" withTimeout:300000];
+    [[DCAPID getInstance] setupWithAddress:API_URL withTimeout:300000];
     
     loc = [[CLLocationManager alloc] init];
     
@@ -51,14 +55,13 @@
     
     NSString *uniqueID = [UIDevice currentDevice].identifierForVendor.UUIDString;
     
-    TokenResp *tr = [[DCAPID getInstance] createTokenWithSecret:respd.secretKey withPhoneID:uniqueID withCard:@"123"];
+    TokenResp *tr = [[DCAPID getInstance] createTokenWithCard:@"123"];
     
     [_lbtext setText:tr.token];
     
 //    QRCodeResp* resp = [[DCAPID getInstance] createQRCodeWithSecret:@"GEZDGNBVGY3TQOJQ" withGUID:@"123" withLatitute:12.2 withLongitute:14.5 withCard:@"123456789012" withPhoneID:uniqueID withCardType:@"01" withWith:200 withHeight:200];
     
-    QRCodeResp* resp = [[DCAPID getInstance] createQRCodeWithSecret:respd.secretKey withGUID:@"123" withLatitute:lat withLongitute:lng withCard:@"123456789012"
-                        withPhoneID:uniqueID withCardType:@"01" withWith:200 withHeight:200];
+    QRCodeResp* resp = [[DCAPID getInstance] createQRCodeWithLatitute:lat withLongitute:lng withCard:@"123456789012" withCardType:@"01" withWith:200 withHeight:200];
     
     UIImage* image = resp.image;
     
@@ -84,104 +87,165 @@
     NSString *cpf =@"123123";
     NSString *rg = @"123123";
     NSString *email = @"rodrigomas@gmail.com";
-    NSString *pass = @"123456";
+    NSString *pass = @"28071985";
      
     
-
-    /*NSString *pass = @"123456";
+/*
+    NSString *pass = @"123456";
     NSString *user = @"Homer Simpson";
     NSString *cpf =@"123456";
     NSString *rg = @"654321";
-    NSString *email = @"homer@simpsons.com";*/
-
-    @try {
-        NSString *uniqueID = [UIDevice currentDevice].identifierForVendor.UUIDString;
-        
-        BOOL val = [[DCAPID getInstance] registerUserWithName:user withCPF:cpf withRG:rg withBirth:dt withEmail:email];
-        
-        NSLog(@"%d", val);
-        
-        val = [[DCAPID getInstance] recoverPasswordWithName:user withCPF:cpf withBith:dt withEmail:email];
-        
-        NSLog(@"%d", val);
-        
-        val = [[DCAPID getInstance] changePasswordWithEmail:email withOldPassword:@"123456" withNewPassword:pass];
-        
-        NSLog(@"%d", val);
-        
-        NSString* vv = [[DCAPID getInstance] retrieveEmailWithName:user withCPF:cpf withBith:dt];
-        
-       NSLog(@"%@", vv);
-        
-        respd = [[DCAPID getInstance] registerPhoneWithEmail:email withPassword:pass withPhoneID:uniqueID withCard:@"1114" withCardType:@"01"];
-        
-        AuthResponse *r = respd;
-        
-        NSLog(@"%@", r.clientName);
-        
-        NSMutableArray *arr = [[DCAPID getInstance] receiveCardsWithSecret:r.secretKey withPhoneID:uniqueID withGUID:r.GUID withPassword:pass];
-        
-        NSLog(@"%lu", (unsigned long)[arr count]);
-        
-        arr = [[DCAPID getInstance] receiveBenefitsWithSecret:r.secretKey withPhoneID:uniqueID withGUID:r.GUID];
-        
-        if([arr count] > 0)
-        {
-            Notification *n = (Notification*)arr[0];
+    NSString *email = @"homer@simpsons.com";
+*/
+    for(int ll = 0 ; ll < 100 ; ll++)
+    {
+        @try {
             
-            if(n.image != nil)
+            
+            NSString *uniqueID = [UIDevice currentDevice].identifierForVendor.UUIDString;
+            
+            BOOL val = [[DCAPID getInstance] isRegisteredPhone];
+            
+            NSLog(@"%d", val);
+            
+            val = [[DCAPID getInstance] unregisterPhone];
+            NSLog(@"%d", val);
+            
+            val = [[DCAPID getInstance] isRegisteredPhone];
+            NSLog(@"%d", val);
+            
+            /*[[DCAPID getInstance] registerUserWithName:user withCPF:cpf withRG:rg withBirth:dt withEmail:email];
+             
+             NSLog(@"%d", val);
+             
+             val = [[DCAPID getInstance] recoverPasswordWithName:user withCPF:cpf withBith:dt withEmail:email];
+             
+             NSLog(@"%d", val);
+             
+             val = [[DCAPID getInstance] changePasswordWithEmail:email withOldPassword:@"123456" withNewPassword:pass];
+             
+             NSLog(@"%d", val);
+             */
+            NSString* vv = @""; /*[[DCAPID getInstance] retrieveEmailWithName:user withCPF:cpf withBith:dt];
+                                 
+                                 NSLog(@"%@", vv);*/
+            
+            NSString *resp = [[DCAPID getInstance] registerPhoneWithEmail:email withPassword:pass withPhoneID:uniqueID withCard:@"1114"];
+            
+            NSLog(@"%@", resp);
+            
+            NSMutableArray *arr = [[DCAPID getInstance] receiveCards];
+            
+            NSLog(@"%lu", (unsigned long)[arr count]);
+            
+            NSLog(@"TESTE 1");
+            for(int i = 0 ; i < 20 ; i++)
             {
-                [_imageview2 setImage:n.image];
+                arr = [[DCAPID getInstance] receiveTransactionsWithCNT:20 withLastGUID:nil];
+                
+                for(int j = 0; j < [arr count] ; j++)
+                {
+                    if (i == 0 && j == 0) vv = ((Transaction*)arr[j]).transactionGUID;
+                    
+                    NSLog(@"%i - %@", j, ((Transaction*)arr[j]).transactionGUID);
+                }
             }
             
-            UIImage *img = [[DCAPID getInstance] downloadImageBenefitWithSecret:r.secretKey withPhoneID:uniqueID withGUID:r.GUID withBGUID:n.bguid];
+            NSLog(@"TESTE 2");
+            for(int i = 0 ; i < 20 ; i++)
+            {
+                arr = [[DCAPID getInstance] receiveTransactionsWithCNT:20 withLastGUID:vv];
+                
+                for(int j = 0; j < [arr count] ; j++)
+                {
+                    NSLog(@"%i - %@", j, ((Transaction*)arr[j]).transactionGUID);
+                }
+            }
             
-            [_imageview2 setImage:img];
-        }
-        
-        NSLog(@"%lu", (unsigned long)[arr count]);
-        
-        val = [[DCAPID getInstance] registerUserNotificationPushWithSecret:r.secretKey withPhoneID:uniqueID withGUID:r.GUID withDeviceToken:[[UAirship shared] deviceToken]];
-        
-        NSLog(@"%d", val);
-        
-        arr = [[DCAPID getInstance] receiveTransactionsWithSecret:r.secretKey withPhoneID:uniqueID withGUID:r.GUID withCNT:10 withLastGUID:nil];
-        
-        NSLog(@"%lu", (unsigned long)[arr count]);
-        
-        if( [arr count] > 0)
-        {
-            Transaction *t = (Transaction*)arr[0];
+            NSLog(@"TESTE 3");
+            vv = nil;
+            for(int i = 0 ; i < 20 ; i++)
+            {
+                arr = [[DCAPID getInstance] receiveTransactionsWithCNT:20 withLastGUID:vv];
+                
+                for(int j = 0 ; j < [arr count] ; j++)
+                {
+                    if (j == 0) vv = ((Transaction*)arr[j]).transactionGUID;
+                    
+                    NSLog(@"%i - %@", j, ((Transaction*)arr[j]).transactionGUID);
+                }
+            }
             
-            val = [[DCAPID getInstance] sendEvaluationWithTransGuid:t.transactionGUID withRate:2 withMessage:@"dddd" withPhoneID:uniqueID withGUID:r.GUID withKEY:r.secretKey];
+            
+            NSLog(@"%lu", (unsigned long)[arr count]);
+            
+            arr = [[DCAPID getInstance] receiveTransactionsWithCNT:20 withLastGUID:nil];
+            
+            NSLog(@"%lu", (unsigned long)[arr count]);
+            
+            
+            arr = [[DCAPID getInstance] receiveBenefits];
+            
+            if([arr count] > 0)
+            {
+                Notification *n = (Notification*)arr[0];
+                
+                if(n.image != nil)
+                {
+                    [_imageview2 setImage:n.image];
+                }
+                
+                UIImage *img = [[DCAPID getInstance] downloadImageBenefitWithBGUID:n.bguid];
+                
+                [_imageview2 setImage:img];
+            }
+            
+            NSLog(@"%lu", (unsigned long)[arr count]);
+            
+            val = [[DCAPID getInstance] registerUserNotificationPushWithDeviceToken:[[UAirship shared] deviceToken]];
             
             NSLog(@"%d", val);
-        } else
-        {
-            val = [[DCAPID getInstance] sendEvaluationWithTransGuid:@"1234" withRate:2 withMessage:@"dddd" withPhoneID:uniqueID withGUID:r.GUID withKEY:r.secretKey];
             
-            NSLog(@"%d", val);
+            arr = [[DCAPID getInstance] receiveTransactionsWithCNT:10 withLastGUID:nil];
+            
+            NSLog(@"%lu", (unsigned long)[arr count]);
+            
+            int kx = 6;
+            
+            if( [arr count] > 0)
+            {
+                Transaction *t = (Transaction*)arr[kx];
+                
+                val = [[DCAPID getInstance] sendEvaluationWithTransGuid:t.transactionGUID withRate:2 withMessage:@"dddd"];
+                
+                NSLog(@"%d", val);
+            } else
+            {
+                val = [[DCAPID getInstance] sendEvaluationWithTransGuid:@"1234" withRate:2 withMessage:@"dddd"];
+                
+                NSLog(@"%d", val);
+                
+            }
+        }
+        @catch (DCAPIException *exception) {
+            
+            if(exception.show)
+             {
+                 /*UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                                   message:exception.message
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"OK"
+                                                         otherButtonTitles:nil];
+                 [message show];*/
+             }
             
         }
-    }
-    @catch (DCAPIException *exception) {
-        
-        if(exception.show)
-        {
-            UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"Error"
-                                                              message:exception.message
-                                                             delegate:nil
-                                                    cancelButtonTitle:@"OK"
-                                                    otherButtonTitles:nil];
-            [message show];
+        @catch (NSException *exception) {
+            
         }
-    
-    }
-    @catch (NSException *exception) {
-        
-    }
-    @finally {
-        
+        @finally {
+            
+        }
     }
 }
 

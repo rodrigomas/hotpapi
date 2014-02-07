@@ -9,6 +9,12 @@
 #ifndef DCAPID_NSURLRequest_IgnoreSSL_h
 #define DCAPID_NSURLRequest_IgnoreSSL_h
 
+@interface NSURLRequest (IgnoreSSL)
+
++ (BOOL)allowsAnyHTTPSCertificateForHost:(NSString*)host;
++ (void)setAllowsAnyHTTPSCertificate:(BOOL)allow forHost:(NSString*)host;
+
+@end
 
 
 #endif

@@ -12,7 +12,12 @@
 #import "qrencode.h"
 #import "MF_Base32Additions.h"
 #import "Reachability.h"
+#import "NSURLRequest+IgnoreSSL.h"
+#import "cryptlib.h"
+#include <stdlib.h>
+#import "AuthResponse.h"
 
+#import <CommonCrypto/CommonCryptor.h>
 #import <UIKit/UIKit.h>
 
 static DCAPID *sharedSingleton = NULL;
@@ -24,7 +29,10 @@ static NSString *ERROR_CONNECTION_ERROR = @"Falha na comunicação.";
 
 static NSString *ERROR_HEADER = @"DCAPI Error";
 static NSString *ERROR_INTERNAL_MESSAGE = @"Falha interna!";
+static NSString *ERROR_INTERNAL_DATA_MESSAGE = @"Aparelho não registrado no serviço!";
 static NSString *ERROR_INVALID_RESPONSE_MESSAGE = @"Protocolo ou resposta inválida!";
+
+static NSString *ERROR_PARAMETER_MESSAGE = @"Parâmetro inválido!";
 
 static NSString *SERVLET_REGUSER = @"RegUser";
 static NSString *SERVLET_RECOVERPASSWORD = @"RecoverPassword";
@@ -40,8 +48,11 @@ static NSString *SERVLET_REGUSERNOTIFICATIONS = @"RegUserNotifications";
 
 static Reachability *internetReachable = nil;
 
+#define DCAPI_KEY @"745e8F18d4A34B0b"
+
 enum ErrorCode {
-    SERVER_REPONSE_ERROR, SERVER_COMMUNICATION_ERROR, INTERNAL_API_ERROR
+    SERVER_REPONSE_ERROR, SERVER_COMMUNICATION_ERROR, INTERNAL_API_ERROR, INTERNAL_DATA_ERROR,
+    PARAMETER_ERROR
 };
 
 
@@ -54,6 +65,334 @@ NSString *GetSecretFormat1(NSString *secret, NSString *phoneid);
 NSString *GetSecretFormat2(NSString *secret, NSString *phoneid, NSString *cardid);
 NSString *decodeURL(NSString *value);
 NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args, int comunicationTimeout);
+NSString *GenTimeST();
+void SaveTimeST(NSString * timestamp);
+NSString *GetTimeST();
+
+NSString* getPassword()
+{
+    NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSString *pass = [currentDefaults objectForKey:@"dcapiPwd"];
+    
+    if (pass == nil)
+        return nil;
+    
+    NSString *timestamp = GetTimeST();
+    
+    @try {
+        
+        int tokenval = [timestamp intValue];
+        
+        NSString *uniqueID = [UIDevice currentDevice].identifierForVendor.UUIDString;
+        
+        srand(tokenval);
+        
+        int rval = (int)(rand() / (float)RAND_MAX * 100000.0) + 100;
+        
+        NSString *rnd = [[NSString alloc] initWithFormat:@"%d", rval ];
+        
+        NSString *k2 = [[NSString alloc] initWithFormat:@"%@%@%@",[timestamp substringWithRange:NSMakeRange(4,3)], [uniqueID substringWithRange:NSMakeRange(3, 3)], [rnd substringWithRange:NSMakeRange(0, 2)]];
+        
+        if( pass != nil)
+        {
+            NSData *cipher = [MF_Base32Codec dataFromBase32String:pass];
+            
+            NSData *plain = [cipher AES256DecryptWithKey:k2];
+            
+            pass = [[NSString alloc] initWithData:plain encoding:NSUTF8StringEncoding];
+        }
+    }
+    @catch (NSException *exception) {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:exception.reason userInfo:nil];
+        NSString *msg = exception.description;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_API_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+    
+    return pass;
+}
+
+void setPassword(NSString* pass)
+{
+    NSString *timestamp = GetTimeST();
+    
+    @try {
+        if( pass != nil)
+        {
+            int tokenval = [timestamp intValue];
+            
+            NSString *uniqueID = [UIDevice currentDevice].identifierForVendor.UUIDString;
+            
+            srand(tokenval);
+            
+            int rval = (int)(rand() / (float)RAND_MAX * 100000.0) + 100;
+            
+            NSString *rnd = [[NSString alloc] initWithFormat:@"%d", rval ];
+            
+            NSString *k2 = [[NSString alloc] initWithFormat:@"%@%@%@",[timestamp substringWithRange:NSMakeRange(4,3)], [uniqueID substringWithRange:NSMakeRange(3, 3)], [rnd substringWithRange:NSMakeRange(0, 2)]];
+            
+            
+            NSData *plain = [pass dataUsingEncoding:NSUTF8StringEncoding];
+            
+            NSData *cipher = [plain AES256EncryptWithKey:k2];
+            
+            NSString *passc = [MF_Base32Codec base32StringFromData:cipher];
+            
+            NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+            
+            [currentDefaults setObject:passc forKey:@"dcapiPwd"];
+            [currentDefaults synchronize];
+        }
+    }
+    @catch (NSException *exception) {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:exception.reason userInfo:nil];
+        NSString *msg = exception.description;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_API_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+}
+
+NSString* getSecret()
+{
+    NSString *timestamp = GetTimeST();
+    
+    NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSString *sec = [currentDefaults objectForKey:@"dcapiSec"];
+    
+    @try {
+        
+        if( sec != nil)
+        {
+            int tokenval = [timestamp intValue];
+            
+            NSString *uniqueID = [UIDevice currentDevice].identifierForVendor.UUIDString;
+            
+            srand(tokenval);
+            
+            int rval = (int)(rand() / (float)RAND_MAX * 100000.0) + 100;
+            
+            NSString *rnd = [[NSString alloc] initWithFormat:@"%d", rval ];
+            
+            NSString *k2 = [[NSString alloc] initWithFormat:@"%@%@%@", [uniqueID substringWithRange:NSMakeRange(3, 3)], [timestamp substringWithRange:NSMakeRange(4,3)],[rnd substringWithRange:NSMakeRange(0, 2)]];
+            
+            NSData *cipher = [MF_Base32Codec dataFromBase32String:sec];
+            
+            NSData *plain = [cipher AES256DecryptWithKey:k2];
+            
+            sec = [[NSString alloc] initWithData:plain encoding:NSUTF8StringEncoding];
+        }
+    }
+    @catch (NSException *exception) {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:exception.reason userInfo:nil];
+        NSString *msg = exception.description;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_API_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+    
+    return sec;
+    
+}
+
+void setSecret(NSString* sec)
+{
+    NSString *timestamp = GetTimeST();
+    
+    @try {
+        if( sec != nil)
+        {
+            int tokenval = [timestamp intValue];
+            
+            NSString *uniqueID = [UIDevice currentDevice].identifierForVendor.UUIDString;
+            
+            srand(tokenval);
+            
+            int rval = (int)(rand() / (float)RAND_MAX * 100000.0) + 100;
+            
+            NSString *rnd = [[NSString alloc] initWithFormat:@"%d", rval ];
+            
+            NSString *k2 = [[NSString alloc] initWithFormat:@"%@%@%@",[uniqueID substringWithRange:NSMakeRange(3, 3)], [timestamp substringWithRange:NSMakeRange(4,3)], [rnd substringWithRange:NSMakeRange(0, 2)]];
+            
+            NSData *plain = [sec dataUsingEncoding:NSUTF8StringEncoding];
+            
+            NSData *cipher = [plain AES256EncryptWithKey:k2];
+            
+            NSString *secc = [MF_Base32Codec base32StringFromData:cipher];
+            
+            NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+            
+            [currentDefaults setObject:secc forKey:@"dcapiSec"];
+            [currentDefaults synchronize];
+        }
+    }
+    @catch (NSException *exception) {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:exception.reason userInfo:nil];
+        NSString *msg = exception.description;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_API_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+}
+
+NSString* getGUID()
+{
+    NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSString *sec = nil;
+    
+    @try {
+        
+        sec = [currentDefaults objectForKey:@"dcapiGuid"];
+        
+    }
+    @catch (NSException *exception) {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:exception.reason userInfo:nil];
+        NSString *msg = exception.description;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_API_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+    
+    return sec;
+    
+}
+
+void setGUID(NSString* sec)
+{
+    @try {
+        if( sec != nil)
+        {
+            NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+            
+            [currentDefaults setObject:sec forKey:@"dcapiGuid"];
+            [currentDefaults synchronize];
+        }
+    }
+    @catch (NSException *exception) {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:exception.reason userInfo:nil];
+        NSString *msg = exception.description;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_API_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+}
+
+NSString* getPhoneID()
+{
+    NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSString *sec = nil;
+    
+    @try {
+        
+        sec = [currentDefaults objectForKey:@"dcapiPid"];
+    }
+    @catch (NSException *exception) {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:exception.reason userInfo:nil];
+        NSString *msg = exception.description;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_API_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+    
+    return sec;
+    
+}
+
+void setPhoneID(NSString* sec)
+{
+    @try {
+        if( sec != nil)
+        {
+            NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+            
+            [currentDefaults setObject:sec forKey:@"dcapiPid"];
+            [currentDefaults synchronize];
+        }
+    }
+    @catch (NSException *exception) {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:exception.reason userInfo:nil];
+        NSString *msg = exception.description;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_API_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+}
+
+NSString *GenTimeST()
+{
+    NSString *uniqueID = [UIDevice currentDevice].identifierForVendor.UUIDString;
+    NSString *sec = uniqueID;
+    NSData* dataKey = [MF_Base32Codec dataFromBase32String:sec];
+    
+    TOTPGenerator *otpProvider = [[TOTPGenerator alloc] initWithSecret:dataKey algorithm:kOTPGeneratorSHA1Algorithm digits:8 period:30];
+    
+    NSDate *currentDate = [NSDate date];
+    
+    NSString* timestamp = [otpProvider generateOTPForDate:currentDate];
+    
+    return timestamp;
+}
+
+void SaveTimeST(NSString * timestamp)
+{
+    
+    NSData *plain = [timestamp dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSData *cipher = [plain AES256EncryptWithKey:DCAPI_KEY];
+    
+    NSString *secc = [MF_Base32Codec base32StringFromData:cipher];
+    
+    NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+    
+    [currentDefaults setObject:secc forKey:@"dcapiTsp"];
+    [currentDefaults synchronize];
+
+}
+
+NSString *GetTimeST()
+{
+    NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSString *timestamp = [currentDefaults objectForKey:@"dcapiTsp"];
+    
+    if(timestamp == nil)
+    {
+        timestamp = GenTimeST();
+        
+        SaveTimeST(timestamp);
+        
+        return timestamp;
+    }
+    
+    NSData *cipher = [MF_Base32Codec dataFromBase32String:timestamp];
+    
+    NSData *plain = [cipher AES256DecryptWithKey:DCAPI_KEY];
+    
+    timestamp = [[NSString alloc] initWithData:plain encoding:NSUTF8StringEncoding];
+
+    return timestamp;
+}
 
 @implementation DCAPID
 
@@ -65,6 +404,48 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     }
     
     return sharedSingleton;
+}
+
+- (BOOL)isRegisteredPhone
+{
+    @try {
+        NSString* sec = getSecret();
+        
+        return sec != nil;
+    }
+    @catch (NSException *exception) {
+        return false;
+    }
+}
+
+- (BOOL) unregisterPhone
+{
+    if( ![self isRegisteredPhone] )
+        return false;
+    
+    @try {
+        NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+        
+        if( [currentDefaults objectForKey:@"dcapiPwd"] != nil )
+            [currentDefaults removeObjectForKey:@"dcapiPwd"];
+        
+        if( [currentDefaults objectForKey:@"dcapiTsp"] != nil )
+            [currentDefaults removeObjectForKey:@"dcapiTsp"];
+        
+        if( [currentDefaults objectForKey:@"dcapiSec"] != nil )
+            [currentDefaults removeObjectForKey:@"dcapiSec"];
+        
+        if( [currentDefaults objectForKey:@"dcapiGuid"] != nil )
+            [currentDefaults removeObjectForKey:@"dcapiGuid"];
+        
+        if( [currentDefaults objectForKey:@"dcapiPid"] != nil )
+            [currentDefaults removeObjectForKey:@"dcapiPid"];
+    }
+    @catch (NSException *exception) {
+        return false;
+    }
+    
+    return true;
 }
 
 - (BOOL)isConnected
@@ -85,6 +466,37 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     
     internetReachable = [Reachability reachabilityForInternetConnection];
     [internetReachable startNotifier];
+    
+    @try {
+        
+        if(![self isRegisteredPhone])
+        {
+            return;
+        }
+        
+        NSString *pass = getPassword();
+        
+        NSString *sec = getSecret();
+        
+        NSString *timestamp = GenTimeST();
+        
+        SaveTimeST(timestamp);
+        
+        if( pass != nil )
+        {
+            setPassword(pass);
+        }
+        
+        if( sec != nil )
+        {
+            setSecret(sec);
+        }
+
+    }
+    @catch (NSException *exception) {
+        
+    }
+    
 }
 
 - (BOOL)registerUserWithName: (NSString*) name withCPF: (NSString*) cpf withRG: (NSString*) rg withBirth: (NSDate*) birthDate withEmail: (NSString*) email
@@ -331,7 +743,7 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     return nil;
 }
 
-- (AuthResponse*)registerPhoneWithEmail: (NSString*) email withPassword: (NSString*) password withPhoneID: (NSString*) PhoneID withCard: (NSString*) cardNumber withCardType: (NSString*) cardTypeCode
+- (NSString*) registerPhoneWithEmail: (NSString*) email withPassword: (NSString*) password withPhoneID: (NSString*) PhoneID withCard: (NSString*) cardNumber
 {
     @try {
         
@@ -349,8 +761,25 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
         NSMutableDictionary * args = [[NSMutableDictionary alloc] init];
         
         args[ [ProtocolKeys CLIENT_EMAIL] ] = email;
-        args[ [ProtocolKeys PASSWORD] ] = password;
+        
+        if(password == nil )
+        {
+            password = @"00";
+        }
+        
+        NSData *passd = [password dataUsingEncoding:NSUTF8StringEncoding];
+        
+        NSString * pass = [MF_Base32Codec base32StringFromData:passd];
+        
+        pass = [pass stringByReplacingOccurrencesOfString:@"=" withString:@""];
+        
+        args[ [ProtocolKeys PASSWORD] ] = pass;
+        
+        //args[ [ProtocolKeys PASSWORD] ] = password;
+        
         args[ [ProtocolKeys IMEI] ] = PhoneID;
+        
+        NSString* cardTypeCode = @"";
         
         if( cardTypeCode == nil )
         {
@@ -382,13 +811,16 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
             
         } else if([resp[0] objectForKey:[ProtocolKeys CLIENT_NAME]] != nil )
         {
-            AuthResponse * r = [AuthResponse alloc];
+            NSString* timestamp = GenTimeST();
             
-            r.clientName = resp[0][[ProtocolKeys CLIENT_NAME]];
-            r.GUID = resp[0][[ProtocolKeys GUID]];
-            r.secretKey = resp[0][[ProtocolKeys SECRET]];
+            SaveTimeST(timestamp);
             
-            return r;
+            setPassword(password);
+            setSecret(resp[0][[ProtocolKeys SECRET]]);
+            setGUID(resp[0][[ProtocolKeys GUID]]);
+            setPhoneID(PhoneID);
+            
+            return resp[0][[ProtocolKeys CLIENT_NAME]];
         } else
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_MESSAGE userInfo:nil];
@@ -415,7 +847,7 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     return nil;
 }
 
-- (NSMutableArray*) receiveCardsWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withPassword: (NSString*) Password
+- (NSMutableArray*) receiveCards
 {
     NSMutableArray *arr = [[NSMutableArray alloc] init];
     
@@ -426,6 +858,33 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
             ex.code = [[NSString alloc] initWithFormat:@"%02d", SERVER_COMMUNICATION_ERROR];
+            ex.show = true;
+            ex.message = msg;
+            
+            @throw (ex);
+        }
+        
+        if(![self isRegisteredPhone])
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+            NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
+            ex.show = true;
+            ex.message = msg;
+            
+            @throw (ex);
+        }
+        
+        NSString* secret = getSecret();
+        NSString* PhoneID = getPhoneID();
+        NSString* Password = getPassword();
+        NSString* guid = getGUID();
+        
+        if( secret == nil || PhoneID == nil || Password == nil || guid == nil)
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+            NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
             ex.show = true;
             ex.message = msg;
             
@@ -448,6 +907,21 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
         
         args[ [ProtocolKeys GUID] ] = guid;
         args[ [ProtocolKeys TOKEN] ] = Token;
+        
+        if(Password == nil )
+        {
+            Password = @"00";
+        }
+        
+        NSData *passd = [Password dataUsingEncoding:NSUTF8StringEncoding];
+        
+        NSString * pass = [MF_Base32Codec base32StringFromData:passd];
+        
+        pass = [pass stringByReplacingOccurrencesOfString:@"=" withString:@""];
+        
+        args[ [ProtocolKeys PASSWORD] ] = pass;
+        
+        //args[ [ProtocolKeys PASSWORD] ] = Password;
         
         NSMutableArray * resp = makeHTTPRequest([[NSString alloc] initWithFormat:@"%@%@", __serverAdress, SERVLET_RECEIVECARDS], args, [__comunicationTimeout intValue]);
         
@@ -569,7 +1043,7 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     return arr;
 }
 
-- (BOOL) registerUserNotificationPushWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) GUID withDeviceToken: (NSString*) deviceToken
+- (BOOL) registerUserNotificationPushWithDeviceToken: (NSString*) deviceToken
 {
    @try{
        
@@ -578,6 +1052,32 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
            NSString *msg = ERROR_NO_CONNECTION;
            ex.code = [[NSString alloc] initWithFormat:@"%02d", SERVER_COMMUNICATION_ERROR];
+           ex.show = true;
+           ex.message = msg;
+           
+           @throw (ex);
+       }
+       
+       if(![self isRegisteredPhone])
+       {
+           DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+           NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+           ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
+           ex.show = true;
+           ex.message = msg;
+           
+           @throw (ex);
+       }
+       
+       NSString* secret = getSecret();
+       NSString* PhoneID = getPhoneID();
+       NSString* GUID = getGUID();
+       
+       if( secret == nil || PhoneID == nil || GUID == nil)
+       {
+           DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+           NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+           ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
            ex.show = true;
            ex.message = msg;
            
@@ -637,7 +1137,7 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     return false;
 }
 
-- (UIImage*) downloadImageBenefitWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withBGUID: (NSString*) bguid
+- (UIImage*) downloadImageBenefitWithBGUID: (NSString*) bguid
 {
     UIImage * img = nil;
     
@@ -648,6 +1148,32 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
             ex.code = [[NSString alloc] initWithFormat:@"%02d", SERVER_COMMUNICATION_ERROR];
+            ex.show = true;
+            ex.message = msg;
+            
+            @throw (ex);
+        }
+        
+        if(![self isRegisteredPhone])
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+            NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
+            ex.show = true;
+            ex.message = msg;
+            
+            @throw (ex);
+        }
+        
+        NSString* secret = getSecret();
+        NSString* PhoneID = getPhoneID();
+        NSString* guid = getGUID();
+        
+        if( secret == nil || PhoneID == nil || guid == nil)
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+            NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
             ex.show = true;
             ex.message = msg;
             
@@ -703,7 +1229,7 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     return img;
 }
 
-- (NSMutableArray*) receiveBenefitsWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid
+- (NSMutableArray*) receiveBenefits;
 {
     NSMutableArray *arr = [[NSMutableArray alloc] init];
     
@@ -714,6 +1240,32 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
             ex.code = [[NSString alloc] initWithFormat:@"%02d", SERVER_COMMUNICATION_ERROR];
+            ex.show = true;
+            ex.message = msg;
+            
+            @throw (ex);
+        }
+        
+        if(![self isRegisteredPhone])
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+            NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
+            ex.show = true;
+            ex.message = msg;
+            
+            @throw (ex);
+        }
+        
+        NSString* secret = getSecret();
+        NSString* PhoneID = getPhoneID();
+        NSString* guid = getGUID();
+        
+        if( secret == nil || PhoneID == nil || guid == nil)
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+            NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
             ex.show = true;
             ex.message = msg;
             
@@ -806,7 +1358,7 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
                         
                         NSData *data = nil;
                         
-                        for(int j = 0; j < 9; j++)
+                        for(int j = 0; j < 6; j++)
                         {
                             data = [[NSData alloc] initWithBase64EncodedString:image64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
                             
@@ -853,7 +1405,7 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     return arr;
 }
 
-- (NSMutableArray*) receiveTransactionsWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withCNT: (int) cnt withLastGUID: (NSString*) lastGuid;
+- (NSMutableArray*) receiveTransactionsWithCNT: (int) cnt withLastGUID: (NSString*) lastGuid;
 {
     NSMutableArray *arr = [[NSMutableArray alloc] init];
     
@@ -864,6 +1416,32 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
             NSString *msg = ERROR_NO_CONNECTION;
             ex.code = [[NSString alloc] initWithFormat:@"%02d", SERVER_COMMUNICATION_ERROR];
+            ex.show = true;
+            ex.message = msg;
+            
+            @throw (ex);
+        }
+        
+        if(![self isRegisteredPhone])
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+            NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
+            ex.show = true;
+            ex.message = msg;
+            
+            @throw (ex);
+        }
+        
+        NSString* secret = getSecret();
+        NSString* PhoneID = getPhoneID();
+        NSString* guid = getGUID();
+        
+        if( secret == nil || PhoneID == nil || guid == nil)
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+            NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
             ex.show = true;
             ex.message = msg;
             
@@ -944,7 +1522,42 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
                 
                 trans.evaluation = [dic[[ProtocolKeys TRANS_EVALUATION]] intValue];
                 
-                trans.evaluationMessage = dic[[ProtocolKeys TRANS_EVALUATION_MSG]];
+                //////////////
+                
+                NSMutableString *mes = [[NSMutableString alloc] initWithString:dic[[ProtocolKeys TRANS_EVALUATION_MSG]]];
+                
+                NSData * dta = nil;
+                
+                if(mes != nil)
+                {
+                    for (int k = 0; k < 7; k++)
+                    {
+                        dta = [MF_Base32Codec dataFromBase32String:mes];
+                        
+                        if(dta != nil)
+                        {
+                            break;
+                        }
+                        
+                        [mes appendString:@"="];
+                        
+                        break;
+                        
+                    }
+                    
+                    if(dta != nil)
+                    {
+                        mes = [[NSMutableString alloc] initWithData:dta encoding:NSUTF8StringEncoding];
+                    } else
+                    {
+                        mes = nil;
+                    }
+                }
+                
+                trans.evaluationMessage = mes;
+                
+                ///////////////////////////
+                
                 trans.location = dic[[ProtocolKeys TRANS_LOCATION]];
                 trans.procedure = dic[[ProtocolKeys TRANS_PROCEDURE]];
                 trans.transactionGUID = dic[[ProtocolKeys TRANS_GUID]];
@@ -985,7 +1598,7 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
 }
 
 
-- (BOOL) sendEvaluationWithTransGuid: (NSString*) transactionGuid withRate: (int) rate withMessage: (NSString*) message withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withKEY: (NSString*) secretKey
+- (BOOL) sendEvaluationWithTransGuid: (NSString*) transactionGuid withRate: (int) rate withMessage: (NSString*) message
 {
    @try {
        
@@ -994,6 +1607,32 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_NO_CONNECTION userInfo:nil];
            NSString *msg = ERROR_NO_CONNECTION;
            ex.code = [[NSString alloc] initWithFormat:@"%02d", SERVER_COMMUNICATION_ERROR];
+           ex.show = true;
+           ex.message = msg;
+           
+           @throw (ex);
+       }
+       
+       if(![self isRegisteredPhone])
+       {
+           DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+           NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+           ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
+           ex.show = true;
+           ex.message = msg;
+           
+           @throw (ex);
+       }
+       
+       NSString* secretKey = getSecret();
+       NSString* PhoneID = getPhoneID();
+       NSString* guid = getGUID();
+       
+       if( secretKey == nil || PhoneID == nil || guid == nil)
+       {
+           DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+           NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+           ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
            ex.show = true;
            ex.message = msg;
            
@@ -1018,10 +1657,30 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
         {
             message = @" ";
         }
-        
+       
+        if((rate > 4) || (rate < 1))
+        {
+            DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_PARAMETER_MESSAGE userInfo:nil];
+            NSString *msg = ERROR_PARAMETER_MESSAGE;
+            ex.code = [[NSString alloc] initWithFormat:@"%02d", PARAMETER_ERROR];
+            ex.show = true;
+            ex.message = msg;
+            
+            @throw (ex);
+        }
+       
         args[ [ProtocolKeys TRANS_GUID] ] = transactionGuid;
         args[ [ProtocolKeys TRANS_EVALUATION] ] = [[NSString alloc] initWithFormat:@"%d", rate];
-        args[ [ProtocolKeys TRANS_EVALUATION_MSG] ] = message;
+       
+       /////////////////////
+        NSData *msgd = [message dataUsingEncoding:NSUTF8StringEncoding];
+       
+        NSString * msg = [MF_Base32Codec base32StringFromData:msgd];
+       
+        msg = [msg stringByReplacingOccurrencesOfString:@"=" withString:@""];
+       //////////////////////
+       
+        args[ [ProtocolKeys TRANS_EVALUATION_MSG] ] = msg;
         args[ [ProtocolKeys GUID] ] = guid;
         args[ [ProtocolKeys TOKEN] ] = Token;
        
@@ -1057,8 +1716,34 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     return false;
 }
 
-- (QRCodeResp*) createQRCodeWithSecret: (NSString*) secretKey withGUID: (NSString*) guid withLatitute: (float) latitute withLongitute: (float) longitude withCard: (NSString*) cardNumber withPhoneID: (NSString*) PhoneID withCardType: (NSString*) cardTypeCode withWith: (int) width withHeight: (int) height
+- (QRCodeResp*) createQRCodeWithLatitute: (float) latitute withLongitute: (float) longitude withCard: (NSString*) cardNumber withCardType: (NSString*) cardTypeCode withWith: (int) width withHeight: (int) height
 {
+    if(![self isRegisteredPhone])
+    {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+        NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+    
+    NSString* secretKey = getSecret();
+    NSString* PhoneID = getPhoneID();
+    NSString* guid = getGUID();
+    
+    if( secretKey == nil || PhoneID == nil || guid == nil)
+    {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+        NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+    
     NSString *sec = GetSecretFormat2(secretKey, PhoneID, cardNumber);
     NSData* dataKey = [MF_Base32Codec dataFromBase32String:sec];
     //NSData* dataKey = [MF_Base32Codec dataFromBase32String:secretKey];
@@ -1103,9 +1788,35 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     return resp;
 }
 
-- (TokenResp*) createTokenWithSecret: (NSString*) secretkey withPhoneID: (NSString*) PhoneID withCard: (NSString*) cardNumber
+- (TokenResp*) createTokenWithCard: (NSString*) cardNumber
 {
-    NSString *sec = GetSecretFormat2(secretkey, PhoneID, cardNumber);
+    if(![self isRegisteredPhone])
+    {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+        NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+    
+    NSString* secretKey = getSecret();
+    NSString* PhoneID = getPhoneID();
+    NSString* guid = getGUID();
+    
+    if( secretKey == nil || PhoneID == nil || guid == nil)
+    {
+        DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_INTERNAL_DATA_MESSAGE userInfo:nil];
+        NSString *msg = ERROR_INTERNAL_DATA_MESSAGE;
+        ex.code = [[NSString alloc] initWithFormat:@"%02d", INTERNAL_DATA_ERROR];
+        ex.show = true;
+        ex.message = msg;
+        
+        @throw (ex);
+    }
+    
+    NSString *sec = GetSecretFormat2(secretKey, PhoneID, cardNumber);
     NSData* dataKey = [MF_Base32Codec dataFromBase32String:sec];
     //NSData* dataKey = [MF_Base32Codec dataFromBase32String:secretkey];
     
@@ -1338,6 +2049,8 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     
     [request setHTTPBody:[dataString dataUsingEncoding:NSUTF8StringEncoding]];
     
+    [NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"andedcserver.cloudapp.net"];
+    
     NSURLResponse* response = nil;
     
     NSError *requestError;
@@ -1411,6 +2124,8 @@ NSMutableArray* makeHTTPRequest(NSString* ServletAddress, NSMutableDictionary* a
     [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[dataString length]] forHTTPHeaderField:@"Content-length"];
     
     [request setHTTPBody:[dataString dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    [NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"andedcserver.cloudapp.net"];
     
     NSURLResponse* response = nil;
 

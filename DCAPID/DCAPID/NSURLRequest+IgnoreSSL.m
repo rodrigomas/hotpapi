@@ -6,4 +6,21 @@
 //  Copyright (c) 2014 Ande Tecnologia. All rights reserved.
 //
 
-#include <stdio.h>
+#import "NSURLRequest+IgnoreSSL.h"
+
+@implementation NSURLRequest (IgnoreSSL)
++ (BOOL)allowsAnyHTTPSCertificateForHost:(NSString*)host
+{
+    return YES;
+    /*
+    // ignore certificate errors only for this domain
+    if ([host hasSuffix:@"andedcserver.cloudapp.net"])
+    {
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }*/
+}
+@end

@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "AuthResponse.h"
 #import "CardInfo.h"
 #import "Notification.h"
 #import "Transaction.h"
@@ -26,6 +25,10 @@
 
 - (BOOL)isConnected;
 
+- (BOOL)isRegisteredPhone;
+
+- (BOOL) unregisterPhone;
+
 - (void)setupWithAddress: (NSString*) serverAdress withTimeout: (int) comunicationTimeout;
 
 - (BOOL)registerUserWithName: (NSString*) name withCPF: (NSString*) cpf withRG: (NSString*) rg withBirth: (NSDate*) birthDate withEmail: (NSString*) email;
@@ -36,23 +39,23 @@
 
 - (NSString*)retrieveEmailWithName: (NSString*) name withCPF: (NSString*) cpf withBith: (NSDate*) birthDate;
 
-- (AuthResponse*)registerPhoneWithEmail: (NSString*) email withPassword: (NSString*) password withPhoneID: (NSString*) PhoneID withCard: (NSString*) cardNumber withCardType: (NSString*) cardTypeCode;
+- (NSString*)registerPhoneWithEmail: (NSString*) email withPassword: (NSString*) password withPhoneID: (NSString*) PhoneID withCard: (NSString*) cardNumber;
 
-- (NSMutableArray*) receiveCardsWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withPassword: (NSString*) Password;
+- (NSMutableArray*) receiveCards;
 
-- (BOOL) registerUserNotificationPushWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) GUID withDeviceToken: (NSString*) deviceToken;
+- (BOOL) registerUserNotificationPushWithDeviceToken: (NSString*) deviceToken;
 
-- (NSMutableArray*) receiveBenefitsWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid;
+- (NSMutableArray*) receiveBenefits;
 
-- (UIImage*) downloadImageBenefitWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withBGUID: (NSString*) bguid;
+- (UIImage*) downloadImageBenefitWithBGUID: (NSString*) bguid ;
 
-- (NSMutableArray*) receiveTransactionsWithSecret: (NSString*) secret withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withCNT: (int) cnt withLastGUID: (NSString*) lastGuid;
+- (NSMutableArray*) receiveTransactionsWithCNT: (int) cnt withLastGUID: (NSString*) lastGuid;
 
-- (BOOL) sendEvaluationWithTransGuid: (NSString*) transactionGuid withRate: (int) rate withMessage: (NSString*) message withPhoneID: (NSString*) PhoneID withGUID: (NSString*) guid withKEY: (NSString*) secretKey;
+- (BOOL) sendEvaluationWithTransGuid: (NSString*) transactionGuid withRate: (int) rate withMessage: (NSString*) message;
 
-- (QRCodeResp*) createQRCodeWithSecret: (NSString*) secretKey withGUID: (NSString*) guid withLatitute: (float) latitute withLongitute: (float) longitude withCard: (NSString*) cardNumber withPhoneID: (NSString*) PhoneID withCardType: (NSString*) cardTypeCode withWith: (int) width withHeight: (int) height;
+- (QRCodeResp*) createQRCodeWithLatitute: (float) latitute withLongitute: (float) longitude withCard: (NSString*) cardNumber withCardType: (NSString*) cardTypeCode withWith: (int) width withHeight: (int) height;
 
-- (TokenResp*) createTokenWithSecret: (NSString*) secretkey withPhoneID: (NSString*) PhoneID withCard: (NSString*) cardNumber;
+- (TokenResp*) createTokenWithCard: (NSString*) cardNumber;
 
 + (DCAPID*) getInstance;
 
