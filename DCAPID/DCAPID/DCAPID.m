@@ -12,7 +12,7 @@
 #import "qrencode.h"
 #import "MF_Base32Additions.h"
 #import "Reachability.h"
-#import "NSURLRequest+IgnoreSSL.h"
+//#import "NSURLRequest+IgnoreSSL.h"
 #import "cryptlib.h"
 #include <stdlib.h>
 #import "AuthResponse.h"
@@ -22,6 +22,7 @@
 
 static DCAPID *sharedSingleton = NULL;
 
+// MENSAGENS ESTÁTICAS
 static NSString *ERROR_WRONG_SERVER_ADDRESS = @"O endereço do servidor está incorreto.";
 static NSString *ERROR_CONNECTION_TIMEOUT = @"Não foi possível conectar ao Serviço Wallet";
 static NSString *ERROR_NO_CONNECTION = @"Sem conexão com a Internet.";
@@ -34,6 +35,7 @@ static NSString *ERROR_INVALID_RESPONSE_MESSAGE = @"Protocolo ou resposta invál
 
 static NSString *ERROR_PARAMETER_MESSAGE = @"Parâmetro inválido!";
 
+// Comandos do servidor
 static NSString *SERVLET_REGUSER = @"RegUser";
 static NSString *SERVLET_RECOVERPASSWORD = @"RecoverPassword";
 static NSString *SERVLET_CHANGEPASSWORD = @"ChangePassword";
@@ -46,29 +48,141 @@ static NSString *SERVLET_RECEIVETRANSACTIONS = @"ReceiveTransactions";
 static NSString *SERVLET_EVALTRANSACTION = @"EvalTransaction";
 static NSString *SERVLET_REGUSERNOTIFICATIONS = @"RegUserNotifications";
 
+// Verificador de internet.
 static Reachability *internetReachable = nil;
 
+// CHAVE MESTRA
 #define DCAPI_KEY @"745e8F18d4A34B0b"
 
+// Código de erro.
 enum ErrorCode {
     SERVER_REPONSE_ERROR, SERVER_COMMUNICATION_ERROR, INTERNAL_API_ERROR, INTERNAL_DATA_ERROR,
     PARAMETER_ERROR
 };
 
-
+/**
+ * Realiza a solicitação ao servidor de cartões digitais para obter dados textuais.
+ * @author Rodrigo Marques
+ *
+ * @param ServletAddress Segredo.
+ * @param args Parâmetros do protocolo.
+ * @param comunicationTimeout Tempo máximo de espera.
+ * @return Retorna os dados textuais solicitados em forma de lista chave valor caso seja bem sucedida e null c.c.
+ */
 NSMutableArray* makeHTTPRequest(NSString* ServletAddress, NSMutableDictionary* args, int comunicationTimeout);
+
+/**
+ * Redimensiona uma imagem usando nearest.
+ * @author Rodrigo Marques
+ *
+ * @param image Imagem associada.
+ * @param size Novo tamanho pretendido.
+ * @return Retorna a imagem redimensionada.
+ */
 UIImage * imageWithImage(UIImage *image, CGSize size);
+
+/**
+ * Converte um Bitmap (byte array) em uma imagem RGB de 8 bits por canal.
+ * @author Rodrigo Marques
+ *
+ * @param buffer Imagem associada.
+ * @param width Largura da imagem codificada no vetor.
+ * @param height Altura da imagem codificada no vetor.
+ * @return Retorna a imagem caso seja bem sucedida e null c.c.
+ */
 UIImage* convertBitmapRGBA8ToUIImage(unsigned char * buffer, int width, int height );
+
+/**
+ * Avalia se a resposta do servidor está de acordo com o protocolo e se os campos necessários estão presentes.
+ * @author Rodrigo Marques
+ *
+ * @param keys Chaves necessárias.
+ * @param resp Reposta do servidor.
+ * @return Retorna true caso seja bem sucedida e false c.c.
+ */
 BOOL ProtocolValid(NSMutableArray *keys, NSMutableDictionary* resp);
+
+/**
+ * Converte uma data para UTC.
+ * @author Rodrigo Marques
+ *
+ * @param sourceDate Data local.
+ * @return Retorna a data em UTC caso seja bem sucedida e null c.c.
+ */
 NSDate* convertToUTC( NSDate* sourceDate);
+
+/**
+ * Gera o segredo do token tipo 1.
+ * @author Rodrigo Marques
+ *
+ * @param secret Segredo.
+ * @param phoneid Id do aparelho.
+ * @return Retorna o segredo tipo 1 caso seja bem sucedida e null c.c.
+ */
 NSString *GetSecretFormat1(NSString *secret, NSString *phoneid);
+
+/**
+ * Gera o segredo do token tipo 2.
+ * @author Rodrigo Marques
+ *
+ * @param secret Segredo.
+ * @param phoneid Id do aparelho.
+ * @param cardid Número do cartão.
+ * @return Retorna o segredo tipo 2 caso seja bem sucedida e null c.c.
+ */
 NSString *GetSecretFormat2(NSString *secret, NSString *phoneid, NSString *cardid);
+
+/**
+ * Decodifica uma string encodada em URL.
+ * @author Rodrigo Marques
+ *
+ * @param value String a ser decodificada.
+ * @return Retorna a string decodificada caso seja bem sucedida e null c.c.
+ */
 NSString *decodeURL(NSString *value);
+
+/**
+ * Realiza a solicitação ao servidor de cartões digitais para obter dados binários.
+ * @author Rodrigo Marques
+ *
+ * @param ServletAddress Segredo.
+ * @param args Parâmetros do protocolo.
+ * @param comunicationTimeout Tempo máximo de espera.
+ * @return Retorna os dados binários solicitados caso seja bem sucedida e null c.c.
+ */
 NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args, int comunicationTimeout);
+
+/**
+ * Gera o cifrador de tempo.
+ * @author Rodrigo Marques
+ *
+ * @return Retorna o valor novo do cifrador.
+ */
 NSString *GenTimeST();
+
+/**
+ * Salva o cifrador de tempo.
+ * @author Rodrigo Marques
+ *
+ * @param timestamp Cifrador.
+ * @return Sem Retorno.
+ */
 void SaveTimeST(NSString * timestamp);
+
+/**
+ * Recupera o cifrador de tempo.
+ * @author Rodrigo Marques
+ *
+ * @return Retorna o valor atual do cifrador.
+ */
 NSString *GetTimeST();
 
+/**
+ * Recupera a senha do usuário de forma segura usando K2.
+ * @author Rodrigo Marques
+ *
+ * @return Retorna a senha se os dados estivem corretos ou null c.c. ou haja comprometimento do cifrador de tempo.
+ */
 NSString* getPassword()
 {
     NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
@@ -116,6 +230,13 @@ NSString* getPassword()
     return pass;
 }
 
+/**
+ * Salva a senha do usuário de forma segura usando K2.
+ * @author Rodrigo Marques
+ *
+ * @param pass Senha do usuário.
+ * @return Sem Retorno.
+ */
 void setPassword(NSString* pass)
 {
     NSString *timestamp = GetTimeST();
@@ -159,6 +280,12 @@ void setPassword(NSString* pass)
     }
 }
 
+/**
+ * Recupera o segredo do usuário de forma segura usando K2.
+ * @author Rodrigo Marques
+ *
+ * @return Retorna o segredo se os dados estivem corretos ou null c.c. ou haja comprometimento do cifrador de tempo.
+ */
 NSString* getSecret()
 {
     NSString *timestamp = GetTimeST();
@@ -204,6 +331,13 @@ NSString* getSecret()
     
 }
 
+/**
+ * Salva o segredo do usuário de forma segura usando K2.
+ * @author Rodrigo Marques
+ *
+ * @param sec Segredo do usuário.
+ * @return Sem Retorno.
+ */
 void setSecret(NSString* sec)
 {
     NSString *timestamp = GetTimeST();
@@ -246,6 +380,12 @@ void setSecret(NSString* sec)
     }
 }
 
+/**
+ * Recupera o id do usuário de forma segura usando K2.
+ * @author Rodrigo Marques
+ *
+ * @return Retorna o id do aparelho se os dados estivem corretos ou null c.c.
+ */
 NSString* getGUID()
 {
     NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
@@ -271,6 +411,13 @@ NSString* getGUID()
     
 }
 
+ /**
+ * Salva o id do usuário.
+ * @author Rodrigo Marques
+ *
+ * @param sec Id do usuário.
+ * @return Sem Retorno.
+ */
 void setGUID(NSString* sec)
 {
     @try {
@@ -293,6 +440,12 @@ void setGUID(NSString* sec)
     }
 }
 
+/**
+ * Recupera o id do aparelho de forma segura usando K2.
+ * @author Rodrigo Marques
+ *
+ * @return Retorna o id do aparelho se os dados estivem corretos ou null c.c.
+ */
 NSString* getPhoneID()
 {
     NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
@@ -317,6 +470,13 @@ NSString* getPhoneID()
     
 }
 
+/**
+ * Salva o id do aparelho de forma segura usando K2.
+ * @author Rodrigo Marques
+ *
+ * @param sec Id do aparelho.
+ * @return Sem Retorno.
+ */
 void setPhoneID(NSString* sec)
 {
     @try {
@@ -1658,7 +1818,7 @@ NSString *GetTimeST()
             message = @" ";
         }
        
-        if((rate > 4) || (rate < 1))
+        if((rate > 5) || (rate < 1))
         {
             DCAPIException *ex = [[DCAPIException alloc] initWithName:ERROR_HEADER reason:ERROR_PARAMETER_MESSAGE userInfo:nil];
             NSString *msg = ERROR_PARAMETER_MESSAGE;
@@ -2049,8 +2209,8 @@ NSData* makeHTTPRequestData(NSString* ServletAddress, NSMutableDictionary* args,
     
     [request setHTTPBody:[dataString dataUsingEncoding:NSUTF8StringEncoding]];
     
-    [NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"andedcserver.cloudapp.net"];
-    
+    /*[NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"andedcserver.cloudapp.net"];
+    */
     NSURLResponse* response = nil;
     
     NSError *requestError;
@@ -2125,8 +2285,8 @@ NSMutableArray* makeHTTPRequest(NSString* ServletAddress, NSMutableDictionary* a
     
     [request setHTTPBody:[dataString dataUsingEncoding:NSUTF8StringEncoding]];
     
-    [NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"andedcserver.cloudapp.net"];
-    
+    /*[NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"andedcserver.cloudapp.net"];
+    */
     NSURLResponse* response = nil;
 
     NSData* data = nil;
